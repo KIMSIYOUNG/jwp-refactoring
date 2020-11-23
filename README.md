@@ -62,29 +62,22 @@
         - 테이블 그룹에서 해제하고 저장          
 
 ### 미션 요구사항(모든 클래스 테스트 작성하기 - 1단계)
-- Controller
-    - [ ] Table
-    - [ ] TableGroup
-    - [ ] Menu
-    - [ ] MenuGroup
-    - [ ] Order
-    - [ ] Product
 - Service
-    - [ ] Table
-    - [ ] TableGroup
-    - [ ] Menu
-    - [ ] MenuGroup
-    - [ ] Order
-    - [ ] Product 
-- Dao
-    - [ ] MenuDao
-    - [ ] MenuGroupDao
-    - [ ] MenuProductDao
-    - [ ] OrderDao
-    - [ ] OrderLineItemDao
-    - [ ] OrderTableDao
-    - [ ] ProductDao
-    - [ ] TableGroupDao
+    - [x] Table
+    - [x] TableGroup
+    - [x] Menu
+    - [x] MenuGroup
+    - [x] Order
+    - [x] Product 
+- Dax
+    - [x] MenuDao
+    - [x] MenuGroupDao
+    - [x] MenuProductDao
+    - [x] OrderDao
+    - [x] OrderLineItemDao
+    - [x] OrderTableDao
+    - [x] ProductDao
+    - [x] TableGroupDao
     
         
 ## 용어 사전
