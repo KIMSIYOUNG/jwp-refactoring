@@ -13,10 +13,6 @@ public class MenuFixture {
         return Menu.create(null, price, null, null);
     }
 
-    public static Menu createEmptyFieldMenu() {
-        return Menu.create(null, null, null, null);
-    }
-
     public static Menu createWithNotExistProductId(Long menuGroupId) {
         return Menu.create(
             null,

@@ -27,6 +27,7 @@ import kitchenpos.domain.Menu;
 import kitchenpos.domain.MenuGroup;
 import kitchenpos.domain.MenuProduct;
 import kitchenpos.domain.Product;
+import kitchenpos.validation.MenuValidator;
 
 class MenuServiceTest extends AbstractServiceTest {
     private MenuService menuService;
@@ -34,6 +35,7 @@ class MenuServiceTest extends AbstractServiceTest {
     private MenuGroupDao menuGroupDao;
     private MenuProductDao menuProductDao;
     private ProductDao productDao;
+    private MenuValidator menuValidator;
 
     @BeforeEach
     void setUp() {
@@ -41,37 +43,19 @@ class MenuServiceTest extends AbstractServiceTest {
         menuGroupDao = new JdbcTemplateMenuGroupDao(dataSource);
         menuProductDao = new JdbcTemplateMenuProductDao(dataSource);
         productDao = new JdbcTemplateProductDao(dataSource);
+        menuValidator = new MenuValidator(menuGroupDao, productDao);
 
         menuService = new MenuService(
             menuDao,
-            menuGroupDao,
             menuProductDao,
-            productDao
+            menuValidator
         );
-    }
-
-    @DisplayName("메뉴의 가격이 없는 경우 예외를 반환한다.")
-    @Test
-    void menuPriceIsNull() {
-        Menu menu = MenuFixture.createWithPrice(null);
-
-        assertThatThrownBy(() -> menuService.create(menu))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @DisplayName("메뉴의 가격이 0보다 작은 경우 예외를 반환한다.")
-    @Test
-    void menuProductUnder0() {
-        Menu menu = MenuFixture.createWithPrice(BigDecimal.valueOf(-1));
-
-        assertThatThrownBy(() -> menuService.create(menu))
-            .isInstanceOf(IllegalArgumentException.class);
     }
 
     @DisplayName("메뉴가 특정 메뉴 그룹에 속해있지 않으면 예외를 반환한다.")
     @Test
     void withOutMenuGroupId() {
-        Menu menu = MenuFixture.createEmptyFieldMenu();
+        Menu menu = MenuFixture.createWithPrice(BigDecimal.valueOf(1000L));
 
         assertThatThrownBy(() -> menuService.create(menu))
             .isInstanceOf(IllegalArgumentException.class);
