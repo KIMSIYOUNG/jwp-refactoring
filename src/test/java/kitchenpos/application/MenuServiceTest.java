@@ -71,7 +71,7 @@ class MenuServiceTest extends AbstractServiceTest {
     @DisplayName("메뉴가 특정 메뉴 그룹에 속해있지 않으면 예외를 반환한다.")
     @Test
     void withOutMenuGroupId() {
-        Menu menu = MenuFixture.createWithoutMenuGroupId();
+        Menu menu = MenuFixture.createEmptyFieldMenu();
 
         assertThatThrownBy(() -> menuService.create(menu))
             .isInstanceOf(IllegalArgumentException.class);
