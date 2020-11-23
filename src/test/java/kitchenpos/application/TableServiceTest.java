@@ -19,6 +19,7 @@ import kitchenpos.application.fixture.OrderTableFixture;
 import kitchenpos.dao.OrderDao;
 import kitchenpos.dao.OrderTableDao;
 import kitchenpos.domain.OrderTable;
+import kitchenpos.validation.OrderTableValidator;
 
 @ExtendWith(MockitoExtension.class)
 class TableServiceTest {
@@ -31,11 +32,14 @@ class TableServiceTest {
     @Mock
     private OrderTableDao orderTableDao;
 
+    @Mock
+    private OrderTableValidator orderTableValidator;
+
     private List<OrderTable> tables;
 
     @BeforeEach
     void setUp() {
-        tableService = new TableService(orderDao, orderTableDao);
+        tableService = new TableService(orderTableDao, orderTableValidator);
 
         OrderTable orderTable1 = new OrderTable(1L, 1L, 0, true);
         OrderTable orderTable2 = new OrderTable(2L, null, 0, true);
@@ -67,10 +71,9 @@ class TableServiceTest {
     @Test
     void changeEmptyHappy() {
         OrderTable table = tables.get(0);
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.of(table));
-        when(orderDao.existsByOrderTableIdAndOrderStatusIn(anyLong(), anyList())).thenReturn(false);
         when(orderTableDao.save(any(OrderTable.class))).thenReturn(table);
-        OrderTable actual = tableService.changeEmpty(table.getId(), table);
+        when(orderTableValidator.changeEmpty(anyLong())).thenReturn(table);
+        OrderTable actual = tableService.changeEmpty(table.getId());
 
         assertThat(actual.isEmpty()).isTrue();
     }
@@ -79,9 +82,9 @@ class TableServiceTest {
     @Test
     void changeEmptyNotFound() {
         OrderTable orderTable = tables.get(0);
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.empty());
+        when(orderTableValidator.changeEmpty(anyLong())).thenThrow(IllegalArgumentException.class);
 
-        assertThatThrownBy(() -> tableService.changeEmpty(orderTable.getId(), orderTable))
+        assertThatThrownBy(() -> tableService.changeEmpty(orderTable.getId()))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -89,10 +92,9 @@ class TableServiceTest {
     @Test
     void changeEmptyAlreadyDoingSomething() {
         OrderTable orderTable = tables.get(0);
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.of(orderTable));
-        when(orderDao.existsByOrderTableIdAndOrderStatusIn(anyLong(), anyList())).thenReturn(true);
+        when(orderTableValidator.changeEmpty(anyLong())).thenThrow(IllegalArgumentException.class);
 
-        assertThatThrownBy(() -> tableService.changeEmpty(orderTable.getId(), orderTable))
+        assertThatThrownBy(() -> tableService.changeEmpty(orderTable.getId()))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -102,8 +104,9 @@ class TableServiceTest {
         OrderTable expected = tables.get(0);
         expected.setNumberOfGuests(18);
         expected.changeFull(expected.getId());
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.of(expected));
         when(orderTableDao.save(any(OrderTable.class))).thenReturn(expected);
+        when(orderTableValidator.changeNumberOfGuests(anyLong(), any())).thenReturn(expected);
+
         OrderTable actual = tableService.changeNumberOfGuests(expected.getId(), expected);
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
@@ -114,6 +117,7 @@ class TableServiceTest {
     void changeNumberOfGuestsNegativeGuestNumber() {
         OrderTable expected = tables.get(0);
         expected.setNumberOfGuests(-1);
+        when(orderTableValidator.changeNumberOfGuests(anyLong(), any())).thenThrow(IllegalArgumentException.class);
 
         assertThatThrownBy(() -> tableService.changeNumberOfGuests(expected.getId(), expected))
             .isInstanceOf(IllegalArgumentException.class);
@@ -123,7 +127,7 @@ class TableServiceTest {
     @Test
     void changeNumberOfGuestsNoOrderTable() {
         OrderTable expected = tables.get(0);
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.empty());
+        when(orderTableValidator.changeNumberOfGuests(anyLong(), any())).thenThrow(IllegalArgumentException.class);
 
         assertThatThrownBy(() -> tableService.changeNumberOfGuests(expected.getId(), expected))
             .isInstanceOf(IllegalArgumentException.class);
@@ -133,7 +137,7 @@ class TableServiceTest {
     @Test
     void changeNumberOfGuestsEmptyNumber() {
         OrderTable expected = tables.get(0);
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.empty());
+        when(orderTableValidator.changeNumberOfGuests(anyLong(), any())).thenThrow(IllegalArgumentException.class);
 
         assertThatThrownBy(() -> tableService.changeNumberOfGuests(expected.getId(), expected))
             .isInstanceOf(IllegalArgumentException.class);

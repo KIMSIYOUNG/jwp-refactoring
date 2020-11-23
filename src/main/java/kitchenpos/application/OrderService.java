@@ -2,7 +2,6 @@ package kitchenpos.application;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,27 +11,27 @@ import kitchenpos.dao.OrderLineItemDao;
 import kitchenpos.domain.Order;
 import kitchenpos.domain.OrderLineItem;
 import kitchenpos.domain.OrderStatus;
-import kitchenpos.validation.OrderValidation;
+import kitchenpos.validation.OrderValidator;
 
 @Service
 public class OrderService {
     private final OrderLineItemDao orderLineItemDao;
-    private final OrderValidation orderValidation;
+    private final OrderValidator orderValidator;
     private final OrderDao orderDao;
 
     public OrderService(
         OrderDao orderDao,
         OrderLineItemDao orderLineItemDao,
-        OrderValidation orderValidation
+        OrderValidator orderValidator
     ) {
         this.orderDao = orderDao;
         this.orderLineItemDao = orderLineItemDao;
-        this.orderValidation = orderValidation;
+        this.orderValidator = orderValidator;
     }
 
     @Transactional
     public Order create(final Order order) {
-        Order validOrder = orderValidation.create(order);
+        Order validOrder = orderValidator.create(order);
         validOrder.startCooking();
         final Order savedOrder = orderDao.save(order);
 
@@ -56,7 +55,7 @@ public class OrderService {
 
     @Transactional
     public Order changeOrderStatus(final Long orderId, final Order order) {
-        Order validOrder = orderValidation.changeOrderStatus(orderId);
+        Order validOrder = orderValidator.changeOrderStatus(orderId);
 
         validOrder.changeStatus(OrderStatus.valueOf(order.getOrderStatus()));
         orderDao.save(validOrder);

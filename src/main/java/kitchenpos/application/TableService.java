@@ -1,24 +1,22 @@
 package kitchenpos.application;
 
-import kitchenpos.dao.OrderDao;
-import kitchenpos.dao.OrderTableDao;
-import kitchenpos.domain.OrderStatus;
-import kitchenpos.domain.OrderTable;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import kitchenpos.dao.OrderTableDao;
+import kitchenpos.domain.OrderTable;
+import kitchenpos.validation.OrderTableValidator;
 
 @Service
 public class TableService {
-    private final OrderDao orderDao;
     private final OrderTableDao orderTableDao;
+    private final OrderTableValidator orderTableValidator;
 
-    public TableService(final OrderDao orderDao, final OrderTableDao orderTableDao) {
-        this.orderDao = orderDao;
+    public TableService(OrderTableDao orderTableDao, OrderTableValidator orderTableValidator) {
         this.orderTableDao = orderTableDao;
+        this.orderTableValidator = orderTableValidator;
     }
 
     @Transactional
@@ -33,37 +31,20 @@ public class TableService {
     }
 
     @Transactional
-    public OrderTable changeEmpty(final Long orderTableId, final OrderTable orderTable) {
-        final OrderTable savedOrderTable = orderTableDao.findById(orderTableId)
-                .orElseThrow(IllegalArgumentException::new);
+    public OrderTable changeEmpty(final Long orderTableId) {
+        OrderTable validOrderTable = orderTableValidator.changeEmpty(orderTableId);
 
-        savedOrderTable.changeEmptyTable();
+        validOrderTable.changeEmptyTable();
 
-        if (orderDao.existsByOrderTableIdAndOrderStatusIn(
-                orderTableId, Arrays.asList(OrderStatus.COOKING.name(), OrderStatus.MEAL.name()))) {
-            throw new IllegalArgumentException();
-        }
-
-        return orderTableDao.save(savedOrderTable);
+        return orderTableDao.save(validOrderTable);
     }
 
     @Transactional
     public OrderTable changeNumberOfGuests(final Long orderTableId, final OrderTable orderTable) {
-        final int numberOfGuests = orderTable.getNumberOfGuests();
+        OrderTable validOrderTable = orderTableValidator.changeNumberOfGuests(orderTableId, orderTable);
 
-        if (numberOfGuests < 0) {
-            throw new IllegalArgumentException();
-        }
+        validOrderTable.setNumberOfGuests(validOrderTable.getNumberOfGuests());
 
-        final OrderTable savedOrderTable = orderTableDao.findById(orderTableId)
-                .orElseThrow(IllegalArgumentException::new);
-
-        if (savedOrderTable.isEmpty()) {
-            throw new IllegalArgumentException();
-        }
-
-        savedOrderTable.setNumberOfGuests(numberOfGuests);
-
-        return orderTableDao.save(savedOrderTable);
+        return orderTableDao.save(validOrderTable);
     }
 }

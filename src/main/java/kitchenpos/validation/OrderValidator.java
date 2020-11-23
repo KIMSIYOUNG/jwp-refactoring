@@ -17,12 +17,12 @@ import kitchenpos.domain.OrderStatus;
 import kitchenpos.domain.OrderTable;
 
 @Component
-public class OrderValidation {
+public class OrderValidator {
     private final OrderDao orderDao;
     private final MenuDao menuDao;
     private final OrderTableDao orderTableDao;
 
-    public OrderValidation(OrderDao orderDao, MenuDao menuDao, OrderTableDao orderTableDao) {
+    public OrderValidator(OrderDao orderDao, MenuDao menuDao, OrderTableDao orderTableDao) {
         this.orderDao = orderDao;
         this.menuDao = menuDao;
         this.orderTableDao = orderTableDao;

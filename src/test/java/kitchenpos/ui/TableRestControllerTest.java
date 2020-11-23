@@ -84,7 +84,7 @@ class TableRestControllerTest {
     void changeEmpty() throws Exception {
         OrderTable table = tables.get(0);
         table.changeFull(table.getTableGroupId());
-        when(tableService.changeEmpty(anyLong(), any(OrderTable.class))).thenReturn(table);
+        when(tableService.changeEmpty(anyLong())).thenReturn(table);
 
         mockMvc.perform(put("/api/tables/{id}/empty", table.getId())
             .contentType(MediaType.APPLICATION_JSON)

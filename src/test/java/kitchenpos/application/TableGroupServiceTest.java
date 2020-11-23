@@ -24,23 +24,27 @@ import kitchenpos.domain.Order;
 import kitchenpos.domain.OrderStatus;
 import kitchenpos.domain.OrderTable;
 import kitchenpos.domain.TableGroup;
+import kitchenpos.validation.TableGroupValidator;
 
 class TableGroupServiceTest extends AbstractServiceTest {
     private TableGroupService tableGroupService;
     private JdbcTemplateOrderTableDao jdbcTemplateOrderTableDao;
     private JdbcTemplateOrderDao jdbcTemplateOrderDao;
     private JdbcTemplateTableGroupDao jdbcTemplateTableGroupDao;
+    private TableGroupValidator tableGroupValidator;
 
     @BeforeEach
     void setUp() {
         jdbcTemplateOrderTableDao = new JdbcTemplateOrderTableDao(dataSource);
         jdbcTemplateOrderDao = new JdbcTemplateOrderDao(dataSource);
         jdbcTemplateTableGroupDao = new JdbcTemplateTableGroupDao(dataSource);
+        tableGroupValidator = new TableGroupValidator(jdbcTemplateOrderDao, jdbcTemplateOrderTableDao);
 
         tableGroupService = new TableGroupService(
-            jdbcTemplateOrderDao,
             jdbcTemplateOrderTableDao,
-            jdbcTemplateTableGroupDao);
+            jdbcTemplateTableGroupDao,
+            tableGroupValidator
+        );
     }
 
     @DisplayName("order table이 비어있는 경우 예외를 반환한다.")
@@ -98,7 +102,8 @@ class TableGroupServiceTest extends AbstractServiceTest {
     @Test
     void create() {
         TableGroup tableGroup = TableGroupFixture.createTableGroupWithOrderTableSize(3);
-        createOrderTableCountBy(3);
+        List<OrderTable> orderTables = createOrderTableCountBy(3);
+        tableGroup.setOrderTables(orderTables);
         TableGroup savedGroup = tableGroupService.create(tableGroup);
 
         assertAll(
