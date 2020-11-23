@@ -25,24 +25,6 @@ class ProductServiceTest extends AbstractServiceTest {
         productService = new ProductService(productDao);
     }
 
-    @DisplayName("상품의 가격이 없으면 예외를 반환한다.")
-    @Test
-    void priceIsNull() {
-        Product product = ProductFixture.createWithOutId(null);
-
-        assertThatThrownBy(() -> productService.create(product))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @DisplayName("상품의 가격이 0원보다 작으면 예외를 반환한다.")
-    @Test
-    void priceUnder0() {
-        Product product = ProductFixture.createWithOutId(BigDecimal.valueOf(-1000));
-
-        assertThatThrownBy(() -> productService.create(product))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
     @DisplayName("상품이 정상적으로 저장된다.")
     @Test
     void create() {
