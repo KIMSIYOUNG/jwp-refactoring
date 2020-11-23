@@ -37,23 +37,9 @@ class TableRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        OrderTable orderTable1 = new OrderTable();
-        orderTable1.setId(1L);
-        orderTable1.setTableGroupId(null);
-        orderTable1.setNumberOfGuests(0);
-        orderTable1.setEmpty(true);
-
-        OrderTable orderTable2 = new OrderTable();
-        orderTable2.setId(2L);
-        orderTable2.setTableGroupId(null);
-        orderTable2.setNumberOfGuests(0);
-        orderTable2.setEmpty(true);
-
-        OrderTable orderTable3 = new OrderTable();
-        orderTable3.setId(3L);
-        orderTable3.setTableGroupId(null);
-        orderTable3.setNumberOfGuests(0);
-        orderTable3.setEmpty(true);
+        OrderTable orderTable1 = new OrderTable(1L, 1L, 0, true);
+        OrderTable orderTable2 = new OrderTable(2L, null, 0, true);
+        OrderTable orderTable3 = new OrderTable(3L, null, 0, true);
 
         tables = Arrays.asList(orderTable1, orderTable2, orderTable3);
     }
@@ -61,11 +47,7 @@ class TableRestControllerTest {
     @DisplayName("테이블을 정상적으로 생성한다.")
     @Test
     void createTable() throws Exception {
-        OrderTable orderTable = new OrderTable();
-        orderTable.setId(null);
-        orderTable.setTableGroupId(null);
-        orderTable.setNumberOfGuests(0);
-        orderTable.setEmpty(true);
+        OrderTable orderTable = new OrderTable(null, null, 0, true);
 
         when(tableService.create(any(OrderTable.class))).thenReturn(tables.get(0));
 
@@ -77,7 +59,7 @@ class TableRestControllerTest {
             .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(jsonPath("id").value(1L))
-            .andExpect(jsonPath("tableGroupId").isEmpty())
+            .andExpect(jsonPath("tableGroupId").value(1L))
             .andExpect(jsonPath("numberOfGuests").value(0))
             .andExpect(jsonPath("empty").value(true));
     }
@@ -101,7 +83,7 @@ class TableRestControllerTest {
     @Test
     void changeEmpty() throws Exception {
         OrderTable table = tables.get(0);
-        table.setEmpty(false);
+        table.changeFull(table.getTableGroupId());
         when(tableService.changeEmpty(anyLong(), any(OrderTable.class))).thenReturn(table);
 
         mockMvc.perform(put("/api/tables/{id}/empty", table.getId())

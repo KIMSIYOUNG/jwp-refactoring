@@ -16,16 +16,19 @@ import kitchenpos.application.fixture.OrderFixture;
 import kitchenpos.application.fixture.OrderLineFixture;
 import kitchenpos.application.fixture.OrderTableFixture;
 import kitchenpos.application.fixture.ProductFixture;
+import kitchenpos.application.fixture.TableGroupFixture;
 import kitchenpos.dao.JdbcTemplateMenuDao;
 import kitchenpos.dao.JdbcTemplateMenuGroupDao;
 import kitchenpos.dao.JdbcTemplateOrderDao;
 import kitchenpos.dao.JdbcTemplateOrderLineItemDao;
 import kitchenpos.dao.JdbcTemplateOrderTableDao;
+import kitchenpos.dao.JdbcTemplateTableGroupDao;
 import kitchenpos.dao.MenuDao;
 import kitchenpos.dao.MenuGroupDao;
 import kitchenpos.dao.OrderDao;
 import kitchenpos.dao.OrderLineItemDao;
 import kitchenpos.dao.OrderTableDao;
+import kitchenpos.dao.TableGroupDao;
 import kitchenpos.domain.Menu;
 import kitchenpos.domain.MenuGroup;
 import kitchenpos.domain.Order;
@@ -33,12 +36,14 @@ import kitchenpos.domain.OrderLineItem;
 import kitchenpos.domain.OrderStatus;
 import kitchenpos.domain.OrderTable;
 import kitchenpos.domain.Product;
+import kitchenpos.domain.TableGroup;
 
 class OrderServiceTest extends AbstractServiceTest {
     private OrderService orderService;
     private MenuDao menuDao;
     private OrderDao orderDao;
     private OrderLineItemDao orderLineItemDao;
+    private TableGroupDao tableGroupDao;
     private MenuGroupDao menuGroupDao;
     private OrderTableDao orderTableDao;
 
@@ -49,6 +54,7 @@ class OrderServiceTest extends AbstractServiceTest {
         orderLineItemDao = new JdbcTemplateOrderLineItemDao(dataSource);
         orderTableDao = new JdbcTemplateOrderTableDao(dataSource);
         menuGroupDao = new JdbcTemplateMenuGroupDao(dataSource);
+        tableGroupDao = new JdbcTemplateTableGroupDao(dataSource);
 
         orderService = new OrderService(menuDao, orderDao, orderLineItemDao, orderTableDao);
     }
@@ -56,7 +62,7 @@ class OrderServiceTest extends AbstractServiceTest {
     @DisplayName("OrderLineItem이 없는 Order의 경우 예외를 반환한다.")
     @Test
     void emptyOrderLineItem() {
-        Order order = OrderFixture.createEmptyOrderLines();
+        Order order = OrderFixture.createEmptyFieldOrder();
 
         assertThatThrownBy(() -> orderService.create(order))
             .isInstanceOf(IllegalArgumentException.class);
@@ -113,8 +119,8 @@ class OrderServiceTest extends AbstractServiceTest {
     @Test
     void create() {
         Menu savedMenu = createMenu();
-        OrderTable orderTable = OrderTableFixture.createBeforeSave();
-        orderTable.setEmpty(false);
+        TableGroup savedTableGroup = tableGroupDao.save(TableGroupFixture.createTableGroupWithOrderTableSize(null));
+        OrderTable orderTable = OrderTableFixture.createBeforeSaveWithFull(savedTableGroup.getId());
         OrderTable savedOrderTable = orderTableDao.save(orderTable);
         Order order = OrderFixture.createWithStatus(savedOrderTable.getId(), OrderStatus.COMPLETION);
         List<OrderLineItem> orderLineItems = Arrays.asList(
@@ -150,7 +156,7 @@ class OrderServiceTest extends AbstractServiceTest {
     @DisplayName("해당 Order가 존재하지 않는 경우 예외를 반환한다.")
     @Test
     void notFound() {
-        assertThatThrownBy(() -> orderService.changeOrderStatus(null, new Order()))
+        assertThatThrownBy(() -> orderService.changeOrderStatus(null, OrderFixture.createEmptyFieldOrder()))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -158,7 +164,7 @@ class OrderServiceTest extends AbstractServiceTest {
     @Test
     void completion() {
         Order savedOrder = orderService.create(createValidOrder());
-        savedOrder.setOrderStatus(OrderStatus.COMPLETION.name());
+        savedOrder.changeStatus(OrderStatus.COMPLETION);
         Order updatedOrder = orderDao.save(savedOrder);
 
         assertThatThrownBy(() -> orderService.changeOrderStatus(updatedOrder.getId(), updatedOrder))
@@ -177,8 +183,11 @@ class OrderServiceTest extends AbstractServiceTest {
 
     private Order createValidOrder() {
         Menu savedMenu = createMenu();
-        OrderTable orderTable = OrderTableFixture.createBeforeSave();
-        orderTable.setEmpty(false);
+        TableGroup tableGroup = TableGroupFixture.createTableGroupWithOrderTableSize(null);
+        TableGroup savedTableGroup = tableGroupDao.save(tableGroup);
+
+        OrderTable orderTable = OrderTableFixture.createBeforeSave(savedTableGroup.getId());
+        orderTable.changeFull(1L);
         OrderTable savedOrderTable = orderTableDao.save(orderTable);
         Order order = OrderFixture.createWithStatus(savedOrderTable.getId(), OrderStatus.COMPLETION);
         List<OrderLineItem> orderLineItems = Arrays.asList(

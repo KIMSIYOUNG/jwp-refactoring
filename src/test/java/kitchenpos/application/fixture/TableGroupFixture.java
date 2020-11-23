@@ -12,7 +12,7 @@ public class TableGroupFixture {
     public static TableGroup createEmptyOrderTable() {
         TableGroup tableGroup = new TableGroup();
         tableGroup.setId(null);
-        OrderTable orderTable = new OrderTable();
+        OrderTable orderTable = OrderTableFixture.createEmptyFieldOrderTable();
         tableGroup.setOrderTables(Arrays.asList(orderTable));
 
         return tableGroup;
@@ -41,14 +41,6 @@ public class TableGroupFixture {
         tableGroup.setId(null);
         tableGroup.setCreatedDate(LocalDateTime.now());
         tableGroup.setOrderTables(OrderTableFixture.createOrderTableCountBy(count));
-
-        return tableGroup;
-    }
-
-    public static TableGroup createWithId(long id) {
-        TableGroup tableGroup = new TableGroup();
-        tableGroup.setId(id);
-        tableGroup.setCreatedDate(LocalDateTime.now());
 
         return tableGroup;
     }

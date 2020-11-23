@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import kitchenpos.application.fixture.OrderFixture;
+import kitchenpos.application.fixture.OrderTableFixture;
 import kitchenpos.dao.OrderDao;
 import kitchenpos.dao.OrderTableDao;
 import kitchenpos.domain.OrderTable;
@@ -35,23 +37,9 @@ class TableServiceTest {
     void setUp() {
         tableService = new TableService(orderDao, orderTableDao);
 
-        OrderTable orderTable1 = new OrderTable();
-        orderTable1.setId(1L);
-        orderTable1.setTableGroupId(null);
-        orderTable1.setNumberOfGuests(0);
-        orderTable1.setEmpty(true);
-
-        OrderTable orderTable2 = new OrderTable();
-        orderTable2.setId(2L);
-        orderTable2.setTableGroupId(null);
-        orderTable2.setNumberOfGuests(0);
-        orderTable2.setEmpty(true);
-
-        OrderTable orderTable3 = new OrderTable();
-        orderTable3.setId(3L);
-        orderTable3.setTableGroupId(null);
-        orderTable3.setNumberOfGuests(0);
-        orderTable3.setEmpty(true);
+        OrderTable orderTable1 = new OrderTable(1L, 1L, 0, true);
+        OrderTable orderTable2 = new OrderTable(2L, null, 0, true);
+        OrderTable orderTable3 = new OrderTable(3L, null, 0, true);
 
         tables = Arrays.asList(orderTable1, orderTable2, orderTable3);
     }
@@ -61,7 +49,7 @@ class TableServiceTest {
     void create() {
         OrderTable expected = tables.get(0);
         when(orderTableDao.save(any(OrderTable.class))).thenReturn(expected);
-        OrderTable orderTable = tableService.create(new OrderTable());
+        OrderTable orderTable = tableService.create(OrderTableFixture.createEmptyFieldOrderTable());
 
         assertThat(orderTable).usingRecursiveComparison().isEqualTo(expected);
     }
@@ -97,17 +85,6 @@ class TableServiceTest {
             .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @DisplayName("OrderTable이 어떤 그룹에 속해있다면 예외를 반환한다.")
-    @Test
-    void changeEmptyGroupIdNull() {
-        OrderTable orderTable = tables.get(0);
-        orderTable.setTableGroupId(1L);
-        when(orderTableDao.findById(anyLong())).thenReturn(Optional.of(orderTable));
-
-        assertThatThrownBy(() -> tableService.changeEmpty(orderTable.getId(), orderTable))
-            .isInstanceOf(IllegalArgumentException.class);
-    }
-
     @DisplayName("식사중이거나, 조리중인 경우에 빈 테이블로 만들 수 없다.")
     @Test
     void changeEmptyAlreadyDoingSomething() {
@@ -124,7 +101,7 @@ class TableServiceTest {
     void changeNumberOfGuests() {
         OrderTable expected = tables.get(0);
         expected.setNumberOfGuests(18);
-        expected.setEmpty(false);
+        expected.changeFull(expected.getId());
         when(orderTableDao.findById(anyLong())).thenReturn(Optional.of(expected));
         when(orderTableDao.save(any(OrderTable.class))).thenReturn(expected);
         OrderTable actual = tableService.changeNumberOfGuests(expected.getId(), expected);

@@ -8,61 +8,29 @@ import kitchenpos.domain.OrderTable;
 
 public class OrderTableFixture {
 
-    public static List<OrderTable> createSavedOrderTableWithCount(int count, Long tableGroupId, int guest) {
-        return LongStream.range(1, count + 1)
-            .mapToObj((i) -> {
-                OrderTable orderTable = new OrderTable();
-                orderTable.setId(i);
-                orderTable.setEmpty(false);
-                orderTable.setTableGroupId(tableGroupId);
-                orderTable.setNumberOfGuests(guest);
-                return orderTable;
-            })
-            .collect(Collectors.toList());
-    }
-
     public static List<OrderTable> createOrderTableCountBy(int count) {
         return LongStream.range(1, count + 1)
-            .mapToObj((i) -> {
-                OrderTable orderTable = new OrderTable();
-                orderTable.setId(i);
-                orderTable.setTableGroupId(i);
-                orderTable.setEmpty(true);
-                return orderTable;
-            })
+            .mapToObj((i) -> new OrderTable(i, i, 0, true))
             .collect(Collectors.toList());
-    }
-
-    public static List<OrderTable> createOrderTableWithIdAndNotEmptyCountBy(int count) {
-        return LongStream.range(1, count + 1)
-            .mapToObj((i) -> {
-                OrderTable orderTable = new OrderTable();
-                orderTable.setId(i);
-                orderTable.setEmpty(false);
-                return orderTable;
-            })
-            .collect(Collectors.toList());
-    }
-
-    public static OrderTable createSavedWithTableGroupId(long id, long tableGroupId) {
-        OrderTable orderTable = new OrderTable();
-        orderTable.setId(id);
-        orderTable.setEmpty(false);
-        orderTable.setTableGroupId(tableGroupId);
-
-        return orderTable;
     }
 
     public static OrderTable createBeforeSave() {
-        OrderTable orderTable = new OrderTable();
-        orderTable.setEmpty(true);
-        return orderTable;
+        return OrderTable.create(null, 0, true);
+    }
+
+    public static OrderTable createBeforeSave(Long tableGroup) {
+        return OrderTable.create(tableGroup, 0, true);
+    }
+
+    public static OrderTable createBeforeSaveWithFull(Long tableGroup) {
+        return OrderTable.create(tableGroup, 0, false);
     }
 
     public static OrderTable createGroupedOrderTable(Long groupId) {
-        OrderTable orderTable = new OrderTable();
-        orderTable.setTableGroupId(groupId);
-        orderTable.setEmpty(true);
-        return orderTable;
+        return OrderTable.create(groupId, 0, true);
+    }
+
+    public static OrderTable createEmptyFieldOrderTable() {
+        return OrderTable.create(null, 0, true);
     }
 }

@@ -62,9 +62,7 @@ public class OrderService {
             throw new IllegalArgumentException();
         }
 
-        order.setOrderTableId(orderTable.getId());
-        order.setOrderStatus(OrderStatus.COOKING.name());
-        order.setOrderedTime(LocalDateTime.now());
+        order.startCooking();
 
         final Order savedOrder = orderDao.save(order);
 
@@ -98,8 +96,7 @@ public class OrderService {
             throw new IllegalArgumentException();
         }
 
-        final OrderStatus orderStatus = OrderStatus.valueOf(order.getOrderStatus());
-        savedOrder.setOrderStatus(orderStatus.name());
+        savedOrder.changeStatus(OrderStatus.valueOf(order.getOrderStatus()));
 
         orderDao.save(savedOrder);
 

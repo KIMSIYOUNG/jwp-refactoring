@@ -9,20 +9,12 @@ import kitchenpos.domain.Product;
 public class MenuProductFixture {
 
     public static MenuProduct createNotExistsProduct() {
-        MenuProduct menuProduct = new MenuProduct();
-        menuProduct.setProductId(10000L);
-
-        return menuProduct;
+        return MenuProduct.create(10000L, 0);
     }
 
     public static List<MenuProduct> create(List<Product> price) {
         return price.stream()
-            .map(pro -> {
-                MenuProduct menuProduct = new MenuProduct();
-                menuProduct.setProductId(pro.getId());
-                menuProduct.setQuantity(1);
-                return menuProduct;
-            })
+            .map(pro -> MenuProduct.create(pro.getId(), 1))
             .collect(Collectors.toList());
     }
 }
