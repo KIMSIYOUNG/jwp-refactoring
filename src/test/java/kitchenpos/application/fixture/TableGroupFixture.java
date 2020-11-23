@@ -10,38 +10,34 @@ import kitchenpos.domain.TableGroup;
 public class TableGroupFixture {
 
     public static TableGroup createEmptyOrderTable() {
-        TableGroup tableGroup = new TableGroup();
-        tableGroup.setId(null);
-        OrderTable orderTable = OrderTableFixture.createEmptyFieldOrderTable();
-        tableGroup.setOrderTables(Arrays.asList(orderTable));
-
-        return tableGroup;
+        return new TableGroup(
+            null,
+            null,
+            Arrays.asList(OrderTableFixture.createEmptyFieldOrderTable())
+        );
     }
 
     public static TableGroup createTableGroupWithOrderTableSize(int count) {
-        TableGroup tableGroup = new TableGroup();
-        tableGroup.setId(1L);
-        tableGroup.setCreatedDate(LocalDateTime.now());
-        tableGroup.setOrderTables(OrderTableFixture.createOrderTableCountBy(count));
-
-        return tableGroup;
+        return new TableGroup(
+            1L,
+            LocalDateTime.now(),
+            OrderTableFixture.createOrderTableCountBy(count)
+        );
     }
 
     public static TableGroup createTableGroupWithOrderTableSize(List<OrderTable> orderTables) {
-        TableGroup tableGroup = new TableGroup();
-        tableGroup.setId(1L);
-        tableGroup.setCreatedDate(LocalDateTime.now());
-        tableGroup.setOrderTables(orderTables);
-
-        return tableGroup;
+        return new TableGroup(
+            1L,
+            LocalDateTime.now(),
+            orderTables
+        );
     }
 
     public static TableGroup createTableGroupWithNotEmptyOrderTableSize(int count) {
-        TableGroup tableGroup = new TableGroup();
-        tableGroup.setId(null);
-        tableGroup.setCreatedDate(LocalDateTime.now());
-        tableGroup.setOrderTables(OrderTableFixture.createOrderTableCountBy(count));
-
-        return tableGroup;
+        return new TableGroup(
+            null,
+            LocalDateTime.now(),
+            OrderTableFixture.createOrderTableCountBy(count)
+        );
     }
 }

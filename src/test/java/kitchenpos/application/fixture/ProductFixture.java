@@ -9,12 +9,7 @@ import kitchenpos.domain.Product;
 
 public class ProductFixture {
     public static Product createWithOutId(BigDecimal price) {
-        Product product = new Product();
-        product.setId(null);
-        product.setName("TEST_PRODUCT");
-        product.setPrice(price);
-
-        return product;
+        return new Product(null, "TEST_PRODUCT", price);
     }
 
     public static List<Product> getProducts(int... price) {
