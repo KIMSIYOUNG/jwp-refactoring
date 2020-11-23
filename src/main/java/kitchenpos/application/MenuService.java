@@ -51,6 +51,7 @@ public class MenuService {
 
     public List<Menu> list() {
         List<Menu> menus = menuDao.findAll();
+
         for (Menu menu : menus) {
             menu.setMenuProducts(menuProductDao.findAllByMenuId(menu.getId()));
         }

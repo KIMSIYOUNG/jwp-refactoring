@@ -37,6 +37,7 @@ import kitchenpos.domain.OrderStatus;
 import kitchenpos.domain.OrderTable;
 import kitchenpos.domain.Product;
 import kitchenpos.domain.TableGroup;
+import kitchenpos.validation.OrderValidation;
 
 class OrderServiceTest extends AbstractServiceTest {
     private OrderService orderService;
@@ -46,6 +47,7 @@ class OrderServiceTest extends AbstractServiceTest {
     private TableGroupDao tableGroupDao;
     private MenuGroupDao menuGroupDao;
     private OrderTableDao orderTableDao;
+    private OrderValidation orderValidation;
 
     @BeforeEach
     void setUp() {
@@ -55,8 +57,9 @@ class OrderServiceTest extends AbstractServiceTest {
         orderTableDao = new JdbcTemplateOrderTableDao(dataSource);
         menuGroupDao = new JdbcTemplateMenuGroupDao(dataSource);
         tableGroupDao = new JdbcTemplateTableGroupDao(dataSource);
+        orderValidation = new OrderValidation(orderDao, menuDao, orderTableDao);
 
-        orderService = new OrderService(menuDao, orderDao, orderLineItemDao, orderTableDao);
+        orderService = new OrderService(orderDao, orderLineItemDao, orderValidation);
     }
 
     @DisplayName("OrderLineItem이 없는 Order의 경우 예외를 반환한다.")
