@@ -26,4 +26,13 @@ class ProductTest {
         assertThatThrownBy(() -> new Product(null, "PRODUCT", BigDecimal.valueOf(money)))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @DisplayName("정상적으로 Product를 생성할 수 있다.")
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1000, 2000, 3000})
+    void create(int money) {
+        Product product = new Product(null, "KKK", BigDecimal.valueOf(money));
+
+        assertThat(product.getPrice().intValue()).isEqualTo(money);
+    }
 }

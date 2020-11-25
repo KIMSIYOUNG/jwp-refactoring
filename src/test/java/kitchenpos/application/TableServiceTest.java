@@ -27,9 +27,6 @@ class TableServiceTest {
     private TableService tableService;
 
     @Mock
-    private OrderDao orderDao;
-
-    @Mock
     private OrderTableDao orderTableDao;
 
     @Mock
